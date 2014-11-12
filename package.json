@@ -1,0 +1,26 @@
+{
+  "name": "Generate-JS",
+  "version": "1.0.0",
+  "description": "A easy to use prototypal inheritance modal and generator.",
+  "main": "generate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Mike96Angelo/Generate-JS.git"
+  },
+  "keywords": [
+    "generate",
+    "generator",
+    "inherit",
+    "inheritance",
+    "prototype"
+  ],
+  "author": "Michaelangelo Jong",
+  "license": "TIM",
+  "bugs": {
+    "url": "https://github.com/Mike96Angelo/Generate-JS/issues"
+  },
+  "homepage": "https://github.com/Mike96Angelo/Generate-JS"
+}
