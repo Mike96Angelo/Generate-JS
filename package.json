@@ -1,5 +1,5 @@
 {
-  "name": "Generate-JS",
+  "name": "generate-js",
   "version": "1.0.0",
   "description": "A easy to use prototypal inheritance modal and generator.",
   "main": "generate.js",
