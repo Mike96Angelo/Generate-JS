@@ -1,7 +1,7 @@
 Generate-JS
 ===========
 
-A easy to use prototypal inheritance modal and generator. 
+A easy to use prototypal inheritance model and generator. 
 
 #Generator
 
