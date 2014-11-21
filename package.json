@@ -1,6 +1,6 @@
 {
   "name": "generate-js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A easy to use prototypal inheritance modal and generator.",
   "main": "generate.js",
   "scripts": {

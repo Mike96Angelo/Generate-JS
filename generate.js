@@ -53,12 +53,6 @@ function GeneratorFunc(ParentGenerator, create, init) {
         },
         prototypeProperties: {
             value: properties
-        }
-    });
-
-    Object.defineProperties(generator, {
-        proto: {
-            value: proto
         },
         create: {
             set: function (createFunc) {
@@ -109,6 +103,10 @@ function GeneratorFunc(ParentGenerator, create, init) {
                 return init;
             }
         }
+    });
+
+    Object.defineProperty(generator, 'proto', {
+        value: proto
     });
 
     return generator;
@@ -236,9 +234,9 @@ Object.defineProperties(GeneratorProto, {
                 for (i = 0; i < methods.length; i++) {
                     if (typeof methods[i] === 'function') {
                         prototypeProperties[getFunctionName(methods[i])] = {
-                            configurable: descriptor.configurable,
-                            enumerable: descriptor.enumerable,
-                            writable: descriptor.writable,
+                            configurable: !!descriptor.configurable,
+                            enumerable: !!descriptor.enumerable,
+                            writable: !!descriptor.writable,
                             value: methods[i]
                         };
                     }
