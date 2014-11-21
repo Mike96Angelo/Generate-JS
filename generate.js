@@ -228,13 +228,19 @@ Object.defineProperties(GeneratorProto, {
         function definePrototypeMethods(descriptor, methods) {
             var prototypeProperties = {},
                 i;
-            if (descriptor instanceof Array && !methods) {
+            if (descriptor instanceof Array) {
                 methods = descriptor;
+                descriptor = {};
             }
             if (methods instanceof Array) {
                 for (i = 0; i < methods.length; i++) {
                     if (typeof methods[i] === 'function') {
-                        prototypeProperties[getFunctionName(methods[i])] = {value: methods[i]};
+                        prototypeProperties[getFunctionName(methods[i])] = {
+                            configurable: descriptor.configurable,
+                            enumerable: descriptor.enumerable,
+                            writable: descriptor.writable,
+                            value: methods[i]
+                        };
                     }
                 }
                 Object.defineProperties(this.proto.prototypeProperties, prototypeProperties);
