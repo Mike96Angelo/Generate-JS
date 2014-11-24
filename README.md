@@ -79,7 +79,6 @@ Defines shared properties for all objects created by *this* generator.
 
 Example:
 ```javascript
-
 /*
  * Defining prototype properties that can be overwritten by generations.
  */
