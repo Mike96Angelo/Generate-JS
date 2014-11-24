@@ -141,6 +141,7 @@ function GeneratorFunc(ParentGenerator, create, init) {
             writable: false
         },
         {
+            name: getFunctionName(create),
             proto: proto
         }
     );
@@ -326,6 +327,7 @@ defineObjectProperties(
         writable: false
     },
     {
+        name: 'Generator',
         proto:       GeneratorProto,
         generate:    GeneratorProto.generate,
         isGenerator: GeneratorProto.isGeneration
