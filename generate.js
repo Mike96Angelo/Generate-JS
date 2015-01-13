@@ -1,12 +1,18 @@
 // generator.js
 // Author: Michaelangelo Jong
 
+(function GeneratorScope() {
+
 // Variables
 var Generator = {},
     GeneratorMethods = {},
     GeneratorProto = {};
 
 // Helper Methods
+
+function toString() {
+    return '[' + (this.name || 'generator') + ' Generator]';
+}
 /**
  * Returns the name of function 'func'.
  * @param  {Function} func Any function.
@@ -29,14 +35,14 @@ function getFunctionName(func) {
  */
 function isGetSet(obj) {
     var keys, length;
-    if (obj instanceof Object) {
+    if (typeof obj === 'object') {
         keys = Object.getOwnPropertyNames(obj).sort();
         length = keys.length;
 
-        if ((length === 1 && (keys[0] === 'get' && obj.get instanceof Function ||
-                              keys[0] === 'set' && obj.set instanceof Function)) ||
-            (length === 2 && (keys[0] === 'get' && obj.get instanceof Function &&
-                              keys[1] === 'set' && obj.set instanceof Function))) {
+        if ((length === 1 && (keys[0] === 'get' && typeof obj.get === 'function' ||
+                              keys[0] === 'set' && typeof obj.set === 'function')) ||
+            (length === 2 && (keys[0] === 'get' && typeof obj.get === 'function' &&
+                              keys[1] === 'set' && typeof obj.set === 'function'))) {
             return true;
         }
     }
@@ -56,11 +62,11 @@ function defineObjectProperties(obj, descriptor, properties) {
         keys,
         length;
 
-    if (!descriptor || !(descriptor instanceof Object)) {
+    if (!descriptor || typeof descriptor !== 'object') {
         descriptor = {};
     }
 
-    if (!properties || !(properties instanceof Object)) {
+    if (!properties || typeof properties !== 'object') {
         properties = descriptor;
         descriptor = {};
     }
@@ -96,14 +102,13 @@ function defineObjectProperties(obj, descriptor, properties) {
  * @param {Function} init             Inits any data stores needed by prototypal methods.
  * @return {Generator}                New Generator that inherits from 'ParentGenerator'.
  */
-function GeneratorFunc(ParentGenerator, create, init) {
+function GeneratorFunc(ParentGenerator, create) {
     ParentGenerator = Generator.isGenerator(ParentGenerator) ? ParentGenerator : Generator;
     var proto       = Object.create(ParentGenerator.proto),
         properties  = Object.create(ParentGenerator.proto.prototypeProperties),
         generator   = Object.create(proto);
 
     create = typeof create === 'function' ? create : Generator.proto.__create;
-    init   = typeof init   === 'function' ? init   : Generator.proto.__init;
 
     defineObjectProperties(
         properties,
@@ -129,7 +134,6 @@ function GeneratorFunc(ParentGenerator, create, init) {
             proto: ParentGenerator.proto,
             prototypeProperties: properties,
             __create: create,
-            __init: init
         }
     );
 
@@ -142,6 +146,64 @@ function GeneratorFunc(ParentGenerator, create, init) {
         },
         {
             name: getFunctionName(create),
+            proto: proto
+        }
+    );
+
+    return generator;
+}
+
+function toGenerator(constructor) {
+    var proto       = Object.create(Generator.proto),
+        properties  = Object.create(constructor.prototype),
+        generator   = Object.create(proto);
+
+    defineObjectProperties(
+        properties,
+        {
+            configurable: false,
+            enumerable: false,
+            writable: false
+        },
+        {
+            proto: Generator.proto.prototypeProperties,
+            generator: generator
+        }
+    );
+
+    defineObjectProperties(
+        properties,
+        {
+            configurable: false,
+            enumerable: false,
+            writable: false
+        },
+        Generator.proto.prototypeProperties
+    );
+
+    defineObjectProperties(
+        proto,
+        {
+            configurable: false,
+            enumerable: false,
+            writable: false
+        },
+        {
+            proto: Generator.proto,
+            prototypeProperties: properties,
+            __create: constructor,
+        }
+    );
+
+    defineObjectProperties(
+        generator,
+        {
+            configurable: false,
+            enumerable: false,
+            writable: false
+        },
+        {
+            name: getFunctionName(constructor),
             proto: proto
         }
     );
@@ -186,22 +248,26 @@ defineObjectProperties(
          * @return {Generator} Instance of this Generator.
          */
         create: function create() {
-            var newObj = Object.create(this.proto.prototypeProperties);
+            var _ = this,
+                newObj = Object.create(_.proto.prototypeProperties),
+                supercreateCalled = false;
 
-            newObj.defineProperties(
-                {
-                    configurable: false,
-                    enumerable: false,
-                    writable: false
-                },
-                {
-                    proto: this.proto.prototypeProperties
+            newObj.supercreate = function supercreate() {
+                supercreateCalled = true;
+
+                if (typeof _.proto.proto === 'object' && _.proto.proto !== Generator.proto){
+                    _.proto.proto.__create.apply(this, Array.prototype.slice.call(arguments));
                 }
-            );
+            };
 
-            this.init(newObj);
+            _.__create.apply(newObj, Array.prototype.slice.call(arguments));
 
-            this.__create.apply(newObj, Array.prototype.slice.call(arguments));
+            if (!supercreateCalled) {
+                newObj.supercreate();
+            }
+
+            delete newObj.supercreate;
+
             return newObj;
         },
         __create: function () {},
@@ -215,31 +281,13 @@ defineObjectProperties(
             return GeneratorFunc(this, create, init);
         },
         /**
-         * Inits any data stores on 'obj' needed by prototypal methods.
-         * @param  {Object} obj A Generator instance.
-         * @return {undefined}  undefined.
-         */
-        init: function init(obj) {
-            var me = this,
-                inits = [],
-                i;
-            while (me.proto) {
-                inits.push(me.proto.__init);
-                me = me.proto;
-            }
-            for (i = inits.length - 1; i >= 0; i--) {
-                inits[i].call(obj);
-            }
-        },
-        __init: function() {},
-        /**
          * Returns true if 'generator' was generated by this Generator.
          * @param  {Generator} generator A Generator.
          * @return {Boolean}             true or false.
          */
         isGeneration: function isGeneration(generator) {
             var _ = this;
-            if (generator instanceof Object && _ !== generator) {
+            if (typeof generator === 'object' && _ !== generator) {
                 while (typeof generator.proto === 'object') {
                     generator = generator.proto;
                     if (_.proto === generator) {
@@ -255,55 +303,9 @@ defineObjectProperties(
          * @return {Boolean}       true or false.
          */
         isCreation: function isCreation(object) {
-            var _ = this;
-            if (object instanceof Object && _ !== object) {
-                while (typeof object.proto === 'object') {
-                    object = object.proto;
-                    if (_.proto.prototypeProperties === object) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        },
-        /**
-         * Defines methods on this' prototype.
-         * @param  {Array} methods An array of named methods.
-         * @return {Generator}     This Generator.
-         */
-        definePrototypeMethods: function definePrototypeMethods(descriptor, methods) {
-            var setMethods = {},
-                i;
-            if (!methods || !(methods instanceof Object)) {
-                methods = descriptor;
-                descriptor = {};
-            }
-
-            if (!descriptor || !(descriptor instanceof Object)) {
-                descriptor = {};
-            }
-
-            if (methods instanceof Array) {
-                for (i = 0; i < methods.length; i++) {
-                    if (typeof methods[i] === 'function') {
-                        setMethods[getFunctionName(methods[i])] = methods[i];
-                    }
-                }
-
-            }
-            this.definePrototype(descriptor, setMethods);
-            console.warn('Generator.definePrototypeMethods is deprecated, please use \'definePrototype\' instead.');
-            return this;
-        },
-        /**
-         * Defines shared properties for all instances of this.
-         * @param  {Object} properties Object keys => descriptors.
-         * @return {Generator}         This Generator.
-         */
-        definePrototypeProperties: function definePrototypeProperties(descriptor, properties) {
-            this.definePrototype(descriptor, properties);
-            console.warn('Generator.definePrototypeProperties is deprecated, please use \'definePrototype\' instead.');
-            return this;
+            var _ = this,
+                generator = typeof object === 'object' ? object.generator : 0;
+            return generator === _ || _.isGeneration(generator);
         },
         /**
          * Defines shared properties for all objects created by this generator.
@@ -314,7 +316,8 @@ defineObjectProperties(
         definePrototype: function definePrototype(descriptor, properties) {
             defineObjectProperties(this.proto.prototypeProperties, descriptor, properties);
             return this;
-        }
+        },
+        toString: toString
     }
 );
 
@@ -327,12 +330,27 @@ defineObjectProperties(
         writable: false
     },
     {
-        name: 'Generator',
+        name:        'Generator',
         proto:       GeneratorProto,
         generate:    GeneratorProto.generate,
-        isGenerator: GeneratorProto.isGeneration
+        isGenerator: GeneratorProto.isGeneration,
+        toGenerator: toGenerator,
+        toString:    toString
     }
 );
 
 // Exports
-module.exports = Generator;
+if (typeof define === 'function' && define.amd) {
+    // AMD
+    define(function() {
+        return Generator;
+    });
+} else if (typeof module === 'object') {
+    // Node/CommonJS
+    module.exports = Generator;
+} else {
+    // Browser global
+    window.Generator = Generator;
+}
+
+}());
