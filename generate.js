@@ -133,6 +133,7 @@ function GeneratorFunc(ParentGenerator, create) {
         {
             proto: ParentGenerator.proto,
             prototypeProperties: properties,
+            __parentGenerator: ParentGenerator,
             __create: create,
         }
     );
@@ -191,6 +192,7 @@ function toGenerator(constructor) {
         {
             proto: Generator.proto,
             prototypeProperties: properties,
+            __parentGenerator: Generator,
             __create: constructor,
         }
     );
@@ -249,26 +251,34 @@ defineObjectProperties(
          */
         create: function create() {
             var _ = this,
-                newObj = Object.create(_.proto.prototypeProperties),
+                args = Array.prototype.slice.call(arguments),
+                newObj = Object.create(_.proto.prototypeProperties);
+
+            _.__supercreate.apply(newObj, [_].concat(args));
+
+            return newObj;
+        },
+        __supercreate: function __supercreate(generator) {
+            var _ = this,
+                args = Array.prototype.slice.call(arguments).slice(1),
+                parentGenerator = generator.__parentGenerator,
                 supercreateCalled = false;
 
-            newObj.supercreate = function supercreate() {
+            _.supercreate = function supercreate() {
                 supercreateCalled = true;
 
-                if (typeof _.proto.proto === 'object' && _.proto.proto !== Generator.proto){
-                    _.proto.proto.__create.apply(this, Array.prototype.slice.call(arguments));
+                if (Generator.isGenerator(parentGenerator)){
+                    parentGenerator.__supercreate.apply(_, [parentGenerator].concat(args));
                 }
             };
 
-            _.__create.apply(newObj, Array.prototype.slice.call(arguments));
+            generator.__create.apply(_, args);
 
             if (!supercreateCalled) {
-                newObj.supercreate();
+                _.supercreate();
             }
 
-            delete newObj.supercreate;
-
-            return newObj;
+            delete _.supercreate;
         },
         __create: function () {},
         /**
@@ -288,9 +298,9 @@ defineObjectProperties(
         isGeneration: function isGeneration(generator) {
             var _ = this;
             if (typeof generator === 'object' && _ !== generator) {
-                while (typeof generator.proto === 'object') {
-                    generator = generator.proto;
-                    if (_.proto === generator) {
+                while (typeof generator.__parentGenerator === 'object') {
+                    generator = generator.__parentGenerator;
+                    if (_ === generator) {
                         return true;
                     }
                 }
@@ -303,9 +313,12 @@ defineObjectProperties(
          * @return {Boolean}       true or false.
          */
         isCreation: function isCreation(object) {
-            var _ = this,
-                generator = typeof object === 'object' ? object.generator : 0;
-            return generator === _ || _.isGeneration(generator);
+            var _ = this;
+
+            if (typeof object === 'object' && Generator.isGenerator(object.generator)) {
+                return _ === object.generator || _.isGeneration(object.generator);
+            }
+            return false;
         },
         /**
          * Defines shared properties for all objects created by this generator.
