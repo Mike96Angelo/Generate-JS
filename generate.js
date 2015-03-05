@@ -35,7 +35,7 @@ function getFunctionName(func) {
  */
 function isGetSet(obj) {
     var keys, length;
-    if (typeof obj === 'object') {
+    if (obj && typeof obj === 'object') {
         keys = Object.getOwnPropertyNames(obj).sort();
         length = keys.length;
 
@@ -297,8 +297,8 @@ defineObjectProperties(
          */
         isGeneration: function isGeneration(generator) {
             var _ = this;
-            if (typeof generator === 'object' && _ !== generator) {
-                while (typeof generator.__parentGenerator === 'object') {
+            if (generator && typeof generator === 'object' && _ !== generator) {
+                while (generator.__parentGenerator && typeof generator.__parentGenerator === 'object') {
                     generator = generator.__parentGenerator;
                     if (_ === generator) {
                         return true;
@@ -315,7 +315,7 @@ defineObjectProperties(
         isCreation: function isCreation(object) {
             var _ = this;
 
-            if (typeof object === 'object' && Generator.isGenerator(object.generator)) {
+            if (object && typeof object === 'object' && Generator.isGenerator(object.generator)) {
                 return _ === object.generator || _.isGeneration(object.generator);
             }
             return false;
@@ -358,7 +358,7 @@ if (typeof define === 'function' && define.amd) {
     define(function() {
         return Generator;
     });
-} else if (typeof module === 'object') {
+} else if (module && typeof module === 'object') {
     // Node/CommonJS
     module.exports = Generator;
 } else {
