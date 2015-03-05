@@ -50,6 +50,68 @@ function isGetSet(obj) {
 }
 
 /**
+ * Returns a descriptor that describes an inserting property based on key naming conventions.
+ * @param  {String} key An object key to be parsed.
+ * @return {Object}     A descriptor.
+ */
+function parseDescriptor(key) {
+    var descriptor;
+
+    switch (true) {
+    case /^__.*__$/.test(key):
+        descriptor = {
+            configurable: false,
+            enumerable: false,
+            writable: false
+        };
+        break;
+    case /^_.*_$/.test(key):
+        descriptor = {
+            configurable: false,
+            enumerable: true,
+            writable: false
+        };
+        break;
+    case /^__/.test(key):
+        descriptor = {
+            configurable: false,
+            enumerable: false,
+            writable: true
+        };
+        break;
+    case /^_/.test(key):
+        descriptor = {
+            configurable: false,
+            enumerable: true,
+            writable: true
+        };
+        break;
+    case /__$/.test(key):
+        descriptor = {
+            configurable: true,
+            enumerable: false,
+            writable: false
+        };
+        break;
+    case /_$/.test(key):
+        descriptor = {
+            configurable: true,
+            enumerable: true,
+            writable: false
+        };
+        break;
+    default:
+        descriptor = {
+            configurable: true,
+            enumerable: true,
+            writable: true
+        };
+    }
+
+    return descriptor;
+}
+
+/**
  * Defines properties on 'obj'.
  * @param  {Object} obj        An object that 'properties' will be attached to.
  * @param  {Object} descriptor Optional object descriptor that will be applied to all attaching properties on 'properties'.
@@ -58,40 +120,50 @@ function isGetSet(obj) {
  */
 function defineObjectProperties(obj, descriptor, properties) {
     var setProperties = {},
+        setDescriptor,
+        descriptorParse = false,
         i,
         keys,
         length;
 
     if (!descriptor || typeof descriptor !== 'object') {
-        descriptor = {};
+        return obj;
     }
 
     if (!properties || typeof properties !== 'object') {
-        properties = descriptor;
-        descriptor = {};
+        if (!descriptor || typeof descriptor !== 'object') {
+            return obj;
+        } else {
+            properties = descriptor;
+            descriptor = {};
+            descriptorParse = true;
+        }
     }
 
     keys = Object.getOwnPropertyNames(properties);
     length = keys.length;
 
     for (i = 0; i < length; i++) {
+        setDescriptor = descriptorParse ? parseDescriptor(keys[i]) : descriptor;
         if (isGetSet(properties[keys[i]])) {
             setProperties[keys[i]] = {
-                configurable: !!descriptor.configurable,
-                enumerable: !!descriptor.enumerable,
+                configurable: !!setDescriptor.configurable,
+                enumerable: !!setDescriptor.enumerable,
                 get: properties[keys[i]].get,
                 set: properties[keys[i]].set
             };
         } else {
             setProperties[keys[i]] = {
-                configurable: !!descriptor.configurable,
-                enumerable: !!descriptor.enumerable,
-                writable: !!descriptor.writable,
+                configurable: !!setDescriptor.configurable,
+                enumerable: !!setDescriptor.enumerable,
+                writable: !!setDescriptor.writable,
                 value: properties[keys[i]]
             };
         }
     }
+
     Object.defineProperties(obj, setProperties);
+
     return obj;
 }
 
@@ -99,7 +171,6 @@ function defineObjectProperties(obj, descriptor, properties) {
  * Generates a new generator that inherits from 'ParentGenerator'.
  * @param {Generator} ParentGenerator Generator to inherit from.
  * @param {Function} create           Create method that gets called when creating a new instance of new generator.
- * @param {Function} init             Inits any data stores needed by prototypal methods.
  * @return {Generator}                New Generator that inherits from 'ParentGenerator'.
  */
 function GeneratorFunc(ParentGenerator, create) {
@@ -118,7 +189,6 @@ function GeneratorFunc(ParentGenerator, create) {
             writable: false
         },
         {
-            proto: ParentGenerator.proto.prototypeProperties,
             generator: generator
         }
     );
@@ -154,6 +224,11 @@ function GeneratorFunc(ParentGenerator, create) {
     return generator;
 }
 
+/**
+ * Generates a new generator that inherits from the 'constructor' class.
+ * @param  {Function} constructor A constructor to be generatorized, constructor will be used as the Create method.
+ * @return {Generator}            New Generator that inherits from 'ParentGenerator'.
+ */
 function toGenerator(constructor) {
     var proto       = Object.create(Generator.proto),
         properties  = Object.create(constructor.prototype),
@@ -167,7 +242,6 @@ function toGenerator(constructor) {
             writable: false
         },
         {
-            proto: Generator.proto.prototypeProperties,
             generator: generator
         }
     );
@@ -229,6 +303,9 @@ defineObjectProperties(
          * @return {Object}            This object.
          */
         defineProperties: function defineProperties(descriptor, properties) {
+            if(GeneratorMethods === this) {
+                throw new Error('defineProperties CANNOT be called on this object.');
+            }
             defineObjectProperties(this, descriptor, properties);
             return this;
         }
@@ -345,6 +422,7 @@ defineObjectProperties(
     {
         name:        'Generator',
         proto:       GeneratorProto,
+        prototypeProperties: GeneratorMethods,
         generate:    GeneratorProto.generate,
         isGenerator: GeneratorProto.isGeneration,
         toGenerator: toGenerator,
@@ -358,7 +436,7 @@ if (typeof define === 'function' && define.amd) {
     define(function() {
         return Generator;
     });
-} else if (typeof module === 'object') {
+} else if (typeof module === 'object' && typeof exports === 'object') {
     // Node/CommonJS
     module.exports = Generator;
 } else {
