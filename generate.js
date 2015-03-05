@@ -436,7 +436,7 @@ if (typeof define === 'function' && define.amd) {
     define(function() {
         return Generator;
     });
-} else if (module && exports && typeof module === 'object' && typeof exports === 'object') {
+} else if (module && typeof module === 'object' && typeof exports === 'object') {
     // Node/CommonJS
     module.exports = Generator;
 } else {
