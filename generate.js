@@ -1,5 +1,7 @@
-// generator.js
-// Author: Michaelangelo Jong
+/**
+ * @name generate.js
+ * @author Michaelangelo Jong
+ */
 
 (function GeneratorScope() {
 
@@ -10,9 +12,14 @@ var Generator = {},
 
 // Helper Methods
 
+/**
+ * Generator.toString method.
+ * @return {String} A string representation of this generator.
+ */
 function toString() {
     return '[' + (this.name || 'generator') + ' Generator]';
 }
+
 /**
  * Returns the name of function 'func'.
  * @param  {Function} func Any function.
@@ -118,7 +125,6 @@ function GeneratorFunc(ParentGenerator, create) {
             writable: false
         },
         {
-            proto: ParentGenerator.proto.prototypeProperties,
             generator: generator
         }
     );
@@ -154,6 +160,11 @@ function GeneratorFunc(ParentGenerator, create) {
     return generator;
 }
 
+/**
+ * [toGenerator description]
+ * @param  {Function} constructor A constructor function.
+ * @return {Generator}            A new generator who's create method is `constructor` and inherits from `constructor.prototype`.
+ */
 function toGenerator(constructor) {
     var proto       = Object.create(Generator.proto),
         properties  = Object.create(constructor.prototype),
@@ -167,7 +178,6 @@ function toGenerator(constructor) {
             writable: false
         },
         {
-            proto: Generator.proto.prototypeProperties,
             generator: generator
         }
     );
@@ -358,7 +368,7 @@ if (typeof define === 'function' && define.amd) {
     define(function() {
         return Generator;
     });
-} else if (module && typeof module === 'object' && typeof exports === 'object') {
+} else if (typeof module === 'object' && typeof exports === 'object') {
     // Node/CommonJS
     module.exports = Generator;
 } else {
