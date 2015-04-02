@@ -275,6 +275,8 @@ defineObjectProperties(
                 supercreateCalled = false;
 
             _.supercreate = function supercreate() {
+                var args = Array.prototype.slice.call(arguments);
+
                 supercreateCalled = true;
 
                 if (Generator.isGenerator(parentGenerator)){
