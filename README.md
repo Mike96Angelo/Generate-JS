@@ -31,10 +31,10 @@ $ npm install generate-js
 <a name="generate"></a>
 ## Generator.generate(create)
 
-* *create* `Function` Create method that gets called when creating a new object that inherits from Generation.proto.
-* *return*: `Generation` A new Generation that inherits from Generation.
+* *create* `Function` Create method that gets called when creating a new object that inherits from [Generation.proto](#generation-proto).
+* *return*: `Generation` A new [Generation](#class-generation) that inherits from [Generation](#class-generation).
 
-Returns a new Generation that inherits from Generation.
+Returns a new [Generation](#class-generation) that inherits from [Generation](#class-generation).
 
 Example:
 ```javascript
@@ -56,15 +56,15 @@ var Person = Generator.generate(
 * *test* `Object` An Object to be tested.
 * *return*: `Boolean` `true` or `false`.
 
-Returns `true` if *test* object inherits from Generation, `false` otherwise.
+Returns `true` if *test* object inherits from [Generation](#class-generation), `false` otherwise.
 
 <a name="to-generator"></a>
 ## Generator.toGenerator(constructor)
 
 * *constructor* `Function` An constructor to be generatorized.
-* *return*: `Generation` A new Generation that who's create method is equivalent to calling `new constructor();`.
+* *return*: `Generation` A new [Generation](#class-generation) that who's create method is equivalent to calling `new constructor();`.
 
-Returns a new Generation that is equivalent to *constructor*.
+Returns a new [Generation](#class-generation) that is equivalent to *constructor*.
 
 *NOTE*: Some native constructors can *NOT* be generatorized.
 
@@ -89,19 +89,19 @@ var MyNewGenerator = EventEmitter.generate(
 <a name="class-generation"></a>
 ## Class: Generation
 
-A new Generation that inherits from the Generation that generated it using the [ Generation.generate(create) ](#generation-generate) method.
+A new Generation that inherits from the Generation that generated it using the [Generation.generate(create)](#generation-generate) method.
 
 <a name="generation-name"></a>
 ## Generation.name
 * *name* `String` The name of the create method.
 
-Name of *this* Generation.
+Name of *this* [Generation](#class-generation).
 
 <a name="generation-proto"></a>
 ## Generation.proto
-* *proto* `Object` Prototype inheritance for Creations created by *this* Generation.
+* *proto* `Object` Prototype inheritance for [Creations](#class-creation) created by *this* [Generation](#class-generation).
 
-Generation.proto inherits from previous Generation's protos all the way up to Generation.proto which is equal to [ Creation ](class-creation).
+Generation.proto inherits from previous Generation's protos all the way up to Generation.proto which is equal to [Creation](class-creation).
 
 <a name="generation-define-prototype"></a>
 ## Generation.definePrototype([descriptor,] properties)
@@ -110,10 +110,10 @@ Generation.proto inherits from previous Generation's protos all the way up to Ge
 	* *configurable* `Boolean` States weather or not properties will be *configurable*, defaults to `false`.
 	* *enumerable* `Boolean` States weather or not properties will be *enumerable*, defaults to `false`.
 	* *writable* `Boolean` States weather or not properties will be *writable*, defaults to `false`.
-* *properties* `Object` An object who's properties will be attached to *this* Generation's proto.
-* *return*: `Generation` *This* Generation.
+* *properties* `Object` An object who's properties will be attached to *this* [Generation's proto](#generation-proto).
+* *return*: `Generation` *This* [Generation](#class-generation).
 
-Defines shared properties for all Creations created by *this* Generation.
+Defines shared properties for all [Creations](#class-creation) created by *this* [Generation](#class-generation).
 
 Example:
 ```javascript
@@ -170,9 +170,9 @@ Person.definePrototype(
 <a name="generation-create"></a>
 ## Generation.create()
 
-* *return*: `Creation` A new Creation that inherits from *this* Generation.proto.
+* *return*: `Creation` A new [Creation](#class-creation) that inherits from *this* [Generation.proto](#generation-proto).
 
-Creates a new [ Creation ](#class-creation) that inherits from *this* [ Generation.proto ](#generation-proto).
+Creates a new [Creation](#class-creation) that inherits from *this* [Generation.proto](#generation-proto).
 
 Example:
 ```javascript
@@ -182,7 +182,7 @@ jim.name // 'Jim'
 jim.age  // 10
 jim.sex  // 'male'
 
-jim.sayHello(); // prints out: 'Hello, my name is Jim.	What is yours?'
+jim.sayHello(); // prints out: 'Hello, my name is Jim.  What is yours?'
 jim.sayBye();	// prints out: 'Goodbye.'
 
 ```
@@ -190,10 +190,10 @@ jim.sayBye();	// prints out: 'Goodbye.'
 <a name="generation-generate"></a>
 ## Generation.generate(create)
 
-* *create* `Function` Create method that gets called when creating a new object that inherits from *this* Generation.proto.
-* *return*: `Generation` A new Generation that inherits from *this* Generation.
+* *create* `Function` Create method that gets called when creating a new object that inherits from *this* [Generation.proto](#generation-proto).
+* *return*: `Generation` A new [Generation](#class-generation) that inherits from *this* [Generation](#class-generation).
 
-Returns a new Generation that inherits from *this* Generation.
+Returns a new [Generation](#class-generation) that inherits from *this* [Generation](#class-generation).
 
 Example:
 ```javascript
@@ -236,7 +236,7 @@ sarah.sayBye();   // prints out: 'Goodbye.'
 * *test* `Object` An Object to be tested.
 * *return*: `Boolean` `true` or `false`.
 
-Returns `true` if *test* inherits from *this* Generation, `false` otherwise.
+Returns `true` if *test* inherits from *this* [Generation](#class-generation), `false` otherwise.
 
 <a name="generation-is-creation"></a>
 ## Generation.isCreation(test)
@@ -244,12 +244,12 @@ Returns `true` if *test* inherits from *this* Generation, `false` otherwise.
 * *test* `Object` An Object to be tested.
 * *return*: `Boolean` `true` or `false`.
 
-Returns `true` if *test* inherits from *this* Generation.proto, `false` otherwise.
+Returns `true` if *test* inherits from *this* [Generation.proto](#generation-proto), `false` otherwise.
 
 <a name="class-creation"></a>
 ## Class: Creation
 
-A new Creation that inherits from a Generation's proto that created it using the [ Generation.create() ](#generation-create) method.
+A new Creation that inherits from a [Generation's proto](#generation-proto) that created it using the [Generation.create()](#generation-create) method.
 
 <a name="creation-define-properties"></a>
 ## Creation.defineProperties([descriptor,] properties)
@@ -258,10 +258,10 @@ A new Creation that inherits from a Generation's proto that created it using the
 	* *configurable* `Boolean` States weather or not properties will be *configurable*, defaults to `false`.
 	* *enumerable* `Boolean` States weather or not properties will be *enumerable*, defaults to `false`.
 	* *writable* `Boolean` States weather or not properties will be *writable*, defaults to `false`.
-* *properties* `Object` An object who's properties will be attached to *this* Creation.
-* *return*: `Creation` *This* Creation.
+* *properties* `Object` An object who's properties will be attached to *this* [Creation](#class-creation).
+* *return*: `Creation` *This* [Creation](#class-creation).
 
-Defines properties on *this* Creation.
+Defines properties on *this* [Creation](#class-creation).
 
 Example:
 ```javascript
@@ -294,16 +294,16 @@ sarah.defineProperties(
 <a name="creation-get-proto"></a>
 ## Creation.getProto()
 
-* *return*: `Object` Prototype of *this* Creation.
+* *return*: `Object` Prototype of *this* [Creation](#class-creation).
 
-Returns the prototype of *this* Creation.
+Returns the prototype of *this* [Creation](#class-creation).
 
 <a name="creation-get-super"></a>
 ## Creation.getSuper()
 
-* *return*: `Object` Super prototype of *this* Creation.
+* *return*: `Object` Super prototype of *this* [Creation](#class-creation).
 
-Returns the super prototype of *this* Creation.
+Returns the super prototype of *this* [Creation](#class-creation).
 
 ## Author:
 	Michaelangelo Jong
