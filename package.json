@@ -1,6 +1,6 @@
 {
   "name": "generate-js",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "An easy to use prototypal inheritance model and generator.",
   "main": "generate.js",
   "scripts": {
