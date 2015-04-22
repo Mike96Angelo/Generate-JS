@@ -13,12 +13,14 @@
 		* [ Generation.isGeneration(test) ](#generation-is-generation)
 	* [ Class: Creation ](#class-creation)
 		* [ Creation.defineProperties([descriptor,] properties) ](#creation-define-properties)
+		* [ Creation.getProto() ](#creation-get-proto)
+		* [ Creation.getSuper() ](#creation-get-super)
+
 
 <a name="generator"></a>
-Generator
-=========
+# Generator
 
-An easy to use prototypal inheritance model and generator.  All generations inherit from Generator.
+An easy to use prototypal inheritance model and generator.	All generations inherit from Generator.
 
 ### Install:
 ```
@@ -41,8 +43,8 @@ var Person = Generator.generate(
 	/* create method */
 	function Person(name, age, sex) {
 		this.name = name || 'no-name';
-		this.age = age   || 0;
-		this.sex = sex   || 'unknown';
+		this.age = age	 || 0;
+		this.sex = sex	 || 'unknown';
 	}
 );
 ```
@@ -69,7 +71,7 @@ Example:
 ```javascript
 // generatorize NodeJS' EventEmitter
 var Generator = require('generate-js'),
-	events    = require('events');
+	events	  = require('events');
 
 var EventEmitter = Generator.toGenerator(events.EventEmitter);
 
@@ -173,8 +175,8 @@ jim.name // 'Jim'
 jim.age  // 10
 jim.sex  // 'male'
 
-jim.sayHello(); // prints out: 'Hello, my name is Jim.  What is yours?'
-jim.sayBye();   // prints out: 'Goodbye.'
+jim.sayHello(); // prints out: 'Hello, my name is Jim.	What is yours?'
+jim.sayBye();	// prints out: 'Goodbye.'
 
 ```
 
@@ -211,9 +213,9 @@ Student.definePrototype(
 
 var sarah = Student.create('Sarah', 17, 'female', 'A0123456789');
 
-sarah.name        // 'Sarah'
-sarah.age         // 17
-sarah.sex         // 'female'
+sarah.name		  // 'Sarah'
+sarah.age		  // 17
+sarah.sex		  // 'female'
 sarah.studentId   // 'A0123456789'
 
 sarah.sayHello(); // prints out: 'Sup? My student ID is: A0123456789'
@@ -281,6 +283,20 @@ sarah.defineProperties(
 );
 
 ```
+
+<a name="creation-get-proto"></a>
+## Creation.getProto()
+
+* *return*: `Object` Prototype of *this* Creation.
+
+Returns the prototype of *this* Creation.
+
+<a name="creation-get-super"></a>
+## Creation.getSuper()
+
+* *return*: `Object` super Prototype of *this* Creation.
+
+Returns the super prototype of *this* Creation.
 
 ## Author:
 	Michaelangelo Jong

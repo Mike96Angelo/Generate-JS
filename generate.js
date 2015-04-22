@@ -6,18 +6,32 @@
 (function GeneratorScope() {
 
 // Variables
-var Generator = {},
-    GeneratorMethods = {},
-    GeneratorProto = {};
+var Creation = {},
+    Generation = {},
+    Generator = {};
 
 // Helper Methods
 
 /**
- * Generator.toString method.
- * @return {String} A string representation of this generator.
+ * Assert Error function.
+ * @param  {Boolean} condition Whether or not to throw error.
+ * @param  {String} message    Error message.
  */
-function toString() {
-    return '[' + (this.name || 'generator') + ' Generator]';
+function assertError(condition, message) {
+    if (!condition) {
+        throw new Error(message);
+    }
+}
+
+/**
+ * Assert TypeError function.
+ * @param  {Boolean} condition Whether or not to throw error.
+ * @param  {String} message    Error message.
+ */
+function assertTypeError(test, type) {
+    if (typeof test !== type) {
+        throw new TypeError('Expected \'' + type + '\' but instead found \'' + typeof test +'\'');
+    }
 }
 
 /**
@@ -102,130 +116,9 @@ function defineObjectProperties(obj, descriptor, properties) {
     return obj;
 }
 
-/**
- * Generates a new generator that inherits from 'ParentGenerator'.
- * @param {Generator} ParentGenerator Generator to inherit from.
- * @param {Function} create           Create method that gets called when creating a new instance of new generator.
- * @param {Function} init             Inits any data stores needed by prototypal methods.
- * @return {Generator}                New Generator that inherits from 'ParentGenerator'.
- */
-function GeneratorFunc(ParentGenerator, create) {
-    ParentGenerator = Generator.isGenerator(ParentGenerator) ? ParentGenerator : Generator;
-    var proto       = Object.create(ParentGenerator.proto),
-        properties  = Object.create(ParentGenerator.proto.prototypeProperties),
-        generator   = Object.create(proto);
-
-    create = typeof create === 'function' ? create : Generator.proto.__create;
-
-    defineObjectProperties(
-        properties,
-        {
-            configurable: false,
-            enumerable: false,
-            writable: false
-        },
-        {
-            generator: generator
-        }
-    );
-
-    defineObjectProperties(
-        proto,
-        {
-            configurable: false,
-            enumerable: false,
-            writable: false
-        },
-        {
-            proto: ParentGenerator.proto,
-            prototypeProperties: properties,
-            __parentGenerator: ParentGenerator,
-            __create: create,
-        }
-    );
-
-    defineObjectProperties(
-        generator,
-        {
-            configurable: false,
-            enumerable: false,
-            writable: false
-        },
-        {
-            name: getFunctionName(create),
-            proto: proto
-        }
-    );
-
-    return generator;
-}
-
-/**
- * [toGenerator description]
- * @param  {Function} constructor A constructor function.
- * @return {Generator}            A new generator who's create method is `constructor` and inherits from `constructor.prototype`.
- */
-function toGenerator(constructor) {
-    var proto       = Object.create(Generator.proto),
-        properties  = Object.create(constructor.prototype),
-        generator   = Object.create(proto);
-
-    defineObjectProperties(
-        properties,
-        {
-            configurable: false,
-            enumerable: false,
-            writable: false
-        },
-        {
-            generator: generator
-        }
-    );
-
-    defineObjectProperties(
-        properties,
-        {
-            configurable: false,
-            enumerable: false,
-            writable: false
-        },
-        Generator.proto.prototypeProperties
-    );
-
-    defineObjectProperties(
-        proto,
-        {
-            configurable: false,
-            enumerable: false,
-            writable: false
-        },
-        {
-            proto: Generator.proto,
-            prototypeProperties: properties,
-            __parentGenerator: Generator,
-            __create: constructor,
-        }
-    );
-
-    defineObjectProperties(
-        generator,
-        {
-            configurable: false,
-            enumerable: false,
-            writable: false
-        },
-        {
-            name: getFunctionName(constructor),
-            proto: proto
-        }
-    );
-
-    return generator;
-}
-
-// Generator Instance Inheritance
+// Creation Class
 defineObjectProperties(
-    GeneratorMethods,
+    Creation,
     {
         configurable: false,
         enumerable: false,
@@ -241,67 +134,122 @@ defineObjectProperties(
         defineProperties: function defineProperties(descriptor, properties) {
             defineObjectProperties(this, descriptor, properties);
             return this;
+        },
+
+        /**
+         * returns the prototype of `this` Creation.
+         * @return {Object} Prototype of `this` Creation.
+         */
+        getProto: function getProto() {
+            return Object.getPrototypeOf(this);
+        },
+
+        /**
+         * returns the prototype of `this` super Creation.
+         * @return {Object} Prototype of `this` super Creation.
+         */
+        getSuper: function getSuper() {
+            return Object.getPrototypeOf(this.generator).proto;
+            // return Object.getPrototypeOf(Object.getPrototypeOf(this));
         }
     }
 );
 
-// Generator Base Inheritance
+// Generation Class
 defineObjectProperties(
-    GeneratorProto,
+    Generation,
     {
         configurable: false,
         enumerable: false,
         writable: false
     },
     {
-        prototypeProperties: GeneratorMethods,
+        name: 'Generation',
+
+        proto: Creation,
+
         /**
          * Creates a new instance of this Generator.
          * @return {Generator} Instance of this Generator.
          */
         create: function create() {
             var _ = this,
-                args = Array.prototype.slice.call(arguments),
-                newObj = Object.create(_.proto.prototypeProperties);
+                newObj = Object.create(_.proto);
 
-            _.__supercreate.apply(newObj, [_].concat(args));
+            _.__supercreate(newObj, arguments);
 
             return newObj;
         },
-        __supercreate: function __supercreate(generator) {
+
+        __supercreate: function __supercreate(newObj, args) {
             var _ = this,
-                args = Array.prototype.slice.call(arguments).slice(1),
-                parentGenerator = generator.__parentGenerator,
+                superGenerator = Object.getPrototypeOf(_),
                 supercreateCalled = false;
 
-            _.supercreate = function supercreate() {
-                var args = Array.prototype.slice.call(arguments);
+            newObj.supercreate = function supercreate() {
 
                 supercreateCalled = true;
 
-                if (Generator.isGenerator(parentGenerator)){
-                    parentGenerator.__supercreate.apply(_, [parentGenerator].concat(args));
+                if (Generation.isGeneration(superGenerator)){
+                    superGenerator.__supercreate(newObj, arguments);
                 }
             };
 
-            generator.__create.apply(_, args);
+            _.__create.apply(newObj, args);
 
             if (!supercreateCalled) {
-                _.supercreate();
+                newObj.supercreate();
             }
 
-            delete _.supercreate;
+            delete newObj.supercreate;
         },
+
         __create: function () {},
+
         /**
-         * Returns a new Generator that inherits from this Generator.
-         * @param {Function} create Create method that gets called when creating a new instance of new generator.
-         * @param {Function} init   Inits any data stores needed by prototypal methods.
-         * @return {Generator}      New generator that inherits from this Generator.
+         * Generates a new generator that inherits from `this` generator.
+         * @param {Generator} ParentGenerator Generator to inherit from.
+         * @param {Function} create           Create method that gets called when creating a new instance of new generator.
+         * @return {Generator}                New Generator that inherits from 'ParentGenerator'.
          */
-        generate:function generate(create, init) {
-            return GeneratorFunc(this, create, init);
+        generate: function generate(create) {
+            var _ = this;
+
+            assertError(Generation.isGeneration(_) || _ === Generation, 'Cannot call method \'generate\' on non-Generations.');
+            assertTypeError(create, 'function');
+
+            var newGenerator = Object.create(_),
+                newProto     = Object.create(_.proto);
+
+            defineObjectProperties(
+                newProto,
+                {
+                    configurable: false,
+                    enumerable: false,
+                    writable: false
+                },
+                {
+                    generator: newGenerator
+                }
+            );
+
+            defineObjectProperties(
+                newGenerator,
+                {
+                    configurable: false,
+                    enumerable: false,
+                    writable: false
+                },
+                {
+                    name: getFunctionName(create),
+                    proto: newProto,
+                    __create: create
+                }
+            );
+
+            return newGenerator;
         },
+
         /**
          * Returns true if 'generator' was generated by this Generator.
          * @param  {Generator} generator A Generator.
@@ -309,16 +257,9 @@ defineObjectProperties(
          */
         isGeneration: function isGeneration(generator) {
             var _ = this;
-            if (generator && typeof generator === 'object' && _ !== generator) {
-                while (generator.__parentGenerator && typeof generator.__parentGenerator === 'object') {
-                    generator = generator.__parentGenerator;
-                    if (_ === generator) {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            return _.isPrototypeOf(generator);
         },
+
         /**
          * Returns true if 'object' was created by this Generator.
          * @param  {Object} object An Object.
@@ -326,12 +267,9 @@ defineObjectProperties(
          */
         isCreation: function isCreation(object) {
             var _ = this;
-
-            if (object && typeof object === 'object' && Generator.isGenerator(object.generator)) {
-                return _ === object.generator || _.isGeneration(object.generator);
-            }
-            return false;
+            return _.proto.isPrototypeOf(object);
         },
+
         /**
          * Defines shared properties for all objects created by this generator.
          * @param  {Object} descriptor Optional object descriptor that will be applied to all attaching properties.
@@ -339,10 +277,17 @@ defineObjectProperties(
          * @return {Generator}         This generator.
          */
         definePrototype: function definePrototype(descriptor, properties) {
-            defineObjectProperties(this.proto.prototypeProperties, descriptor, properties);
+            defineObjectProperties(this.proto, descriptor, properties);
             return this;
         },
-        toString: toString
+
+        /**
+         * Generator.toString method.
+         * @return {String} A string representation of this generator.
+         */
+        toString: function toString() {
+            return '[' + (this.name || 'generation') + ' Generator]';
+        }
     }
 );
 
@@ -355,14 +300,81 @@ defineObjectProperties(
         writable: false
     },
     {
-        name:        'Generator',
-        proto:       GeneratorProto,
-        generate:    GeneratorProto.generate,
-        isGenerator: GeneratorProto.isGeneration,
-        toGenerator: toGenerator,
-        toString:    toString
+        /**
+         * Generates a new generator that inherits from `this` generator.
+         * @param {Generator} ParentGenerator Generator to inherit from.
+         * @param {Function} create           Create method that gets called when creating a new instance of new generator.
+         * @return {Generator}                New Generator that inherits from 'ParentGenerator'.
+         */
+        generate: function generate (create) {
+            return Generation.generate(create);
+        },
+
+        /**
+         * Returns true if 'generator' was generated by this Generator.
+         * @param  {Generator} generator A Generator.
+         * @return {Boolean}             true or false.
+         */
+        isGenerator: function isGenerator (generator) {
+            return Generation.isGeneration(generator);
+        },
+
+        /**
+         * [toGenerator description]
+         * @param  {Function} constructor A constructor function.
+         * @return {Generator}            A new generator who's create method is `constructor` and inherits from `constructor.prototype`.
+         */
+        toGenerator: function toGenerator(constructor) {
+
+            assertTypeError(constructor, 'function');
+
+            var newGenerator = Object.create(Generation),
+                newProto     = Object.create(constructor.prototype);
+
+            defineObjectProperties(
+                newProto,
+                {
+                    configurable: false,
+                    enumerable: false,
+                    writable: false
+                },
+                {
+                    generator: newGenerator
+                }
+            );
+
+            defineObjectProperties(
+                newProto,
+                {
+                    configurable: false,
+                    enumerable: false,
+                    writable: false
+                },
+                Creation
+            );
+
+            defineObjectProperties(
+                newGenerator,
+                {
+                    configurable: false,
+                    enumerable: false,
+                    writable: false
+                },
+                {
+                    name: getFunctionName(constructor),
+                    proto: newProto,
+                    __create: constructor
+                }
+            );
+
+            return newGenerator;
+        }
     }
 );
+
+Object.freeze(Creation);
+Object.freeze(Generation);
+Object.freeze(Generator);
 
 // Exports
 if (typeof define === 'function' && define.amd) {
