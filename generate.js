@@ -81,16 +81,15 @@ function defineObjectProperties(obj, descriptor, properties) {
     var setProperties = {},
         i,
         keys,
-        length;
+        length,
 
-    if (!descriptor || typeof descriptor !== 'object') {
-        descriptor = {};
-    }
+        p = properties || descriptor,
+        d = properties && descriptor;
 
-    if (!properties || typeof properties !== 'object') {
-        properties = descriptor;
-        descriptor = {};
-    }
+    properties = (p && typeof p === 'object') ? p : {};
+    descriptor = (d && typeof d === 'object') ? d : {};
+
+    console.log(descriptor, properties);
 
     keys = Object.getOwnPropertyNames(properties);
     length = keys.length;
