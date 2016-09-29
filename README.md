@@ -1,18 +1,16 @@
-# Release v2.1.6
+# Release v3.0.0
 
-# [v3.0.0](new-api.md) has *BREAKING* changes and is not compatible for inheirtance with *ANY* v2.\*.\* Generators.
+# v3.0.0 has *BREAKING* changes and is not compatible for inheirtance with *ANY* v2.\*.\* Generators.
 
 ## Table of Contents
 
 * [ Generator ](#generator)
 	* [ Generator.generate(create) ](#generate)
 	* [ Generator.isGenerator(test) ](#is-generator)
-	* [ Generator.toGenerator(constructor) ](#to-generator)
+	* [ Generator.toGenerator(constructor, create) ](#to-generator)
 	* [ Class: Generation ](#class-generation)
-		* [ Generation.name ](#generation-name)
-		* [ Generation.proto ](#generation-proto)
+		* [ new Generation() ](#generation-create)
 		* [ Generation.definePrototype([descriptor,] properties) ](#generation-define-prototype)
-		* [ Generation.create() ](#generation-create)
 		* [ Generation.generate(create) ](#generation-generate)
 		* [ Generation.isCreation(test) ](#generation-is-creation)
 		* [ Generation.isGeneration(test) ](#generation-is-generation)
@@ -35,8 +33,8 @@ $ npm install generate-js
 <a name="generate"></a>
 ## Generator.generate(create)
 
-* *create* `Function` Create method that gets called when creating a new object that inherits from [Generation.proto](#generation-proto).
-* *return*: `Generation` A new [Generation](#class-generation) that inherits from [Generation](#class-generation).
+* *create* `Function` Constructor that with inherit form [Generation](#class-generation).
+* *return*: `Constructor` The inputed `create` function.
 
 Returns a new [Generation](#class-generation) that inherits from [Generation](#class-generation).
 
@@ -63,12 +61,13 @@ var Person = Generator.generate(
 Returns `true` if *test* object inherits from [Generation](#class-generation), `false` otherwise.
 
 <a name="to-generator"></a>
-## Generator.toGenerator(constructor)
+## Generator.toGenerator(constructor, create)
 
 * *constructor* `Function` An constructor to be generatorized.
-* *return*: `Generation` A new [Generation](#class-generation) that who's create method is equivalent to calling `new constructor();`.
+* *create* `Function` Constructor that with inherit form [Generation](#class-generation) and *constructor*.
+* *return*: `Constructor` The inputed `create` function.
 
-Returns a new [Generation](#class-generation) that is equivalent to *constructor*.
+Returns a new [Generation](#class-generation) that inherits from [Generation](#class-generation) and *constructor*.
 
 *NOTE*: Some native constructors can *NOT* be generatorized.
 
@@ -78,14 +77,20 @@ Example:
 var Generator = require('generate-js'),
 	events	  = require('events');
 
-var EventEmitter = Generator.toGenerator(events.EventEmitter);
+var EventEmitter = Generator.toGenerator(events.EventEmitter, function EventEmitter() {
+  events.EventEmitter.call(this); //call the super constructor
+});
 
-// EventEmitter.create() same as new events.EventEmitter();
+// new EventEmitter() same as new events.EventEmitter();
 
 // new generators can inherit all the abilities of EventEmitter like so.
 var MyNewGenerator = EventEmitter.generate(
 	/* create method */
-	function MyNewGenerator() {}
+	function MyNewGenerator() {
+    EventEmitter.call(this); //call the super constructor
+
+    // your code
+  }
 );
 
 ```
@@ -95,17 +100,25 @@ var MyNewGenerator = EventEmitter.generate(
 
 A new Generation that inherits from the Generation that generated it using the [Generation.generate(create)](#generation-generate) method.
 
-<a name="generation-name"></a>
-## Generation.name
-* *name* `String` The name of the create method.
+<a name="generation-create"></a>
+## new Generation()
 
-Name of *this* [Generation](#class-generation).
+* *return*: `Creation` A new [Creation](#class-creation) that is an instance of *this* [Generation](#generation).
 
-<a name="generation-proto"></a>
-## Generation.proto
-* *proto* `Object` Prototype inheritance for [Creations](#class-creation) created by *this* [Generation](#class-generation).
+Creates a new [Creation](#class-creation) that is an instance of *this* [Generation](#generation).
 
-Generation.proto inherits from previous Generation's protos all the way up to Generation.proto which is equal to [Creation](class-creation).
+Example:
+```javascript
+var jim = new Person('Jim', 10, 'male');
+
+jim.name // 'Jim'
+jim.age  // 10
+jim.sex  // 'male'
+
+jim.sayHello(); // prints out: 'Hello, my name is Jim.  What is yours?'
+jim.sayBye();	// prints out: 'Goodbye.'
+
+```
 
 <a name="generation-define-prototype"></a>
 ## Generation.definePrototype([descriptor,] properties)
@@ -114,7 +127,7 @@ Generation.proto inherits from previous Generation's protos all the way up to Ge
 	* *configurable* `Boolean` States weather or not properties will be *configurable*, defaults to `false`.
 	* *enumerable* `Boolean` States weather or not properties will be *enumerable*, defaults to `false`.
 	* *writable* `Boolean` States weather or not properties will be *writable*, defaults to `false`.
-* *properties* `Object` An object who's properties will be attached to *this* [Generation's proto](#generation-proto).
+* *properties* `Object` An object who's properties will be attached to *this* [Generation.prototype](#generation).
 * *return*: `Generation` *This* [Generation](#class-generation).
 
 Defines shared properties for all [Creations](#class-creation) created by *this* [Generation](#class-generation).
@@ -171,31 +184,11 @@ Person.definePrototype(
 
 ```
 
-<a name="generation-create"></a>
-## Generation.create()
-
-* *return*: `Creation` A new [Creation](#class-creation) that inherits from *this* [Generation.proto](#generation-proto).
-
-Creates a new [Creation](#class-creation) that inherits from *this* [Generation.proto](#generation-proto).
-
-Example:
-```javascript
-var jim = Person.create('Jim', 10, 'male');
-
-jim.name // 'Jim'
-jim.age  // 10
-jim.sex  // 'male'
-
-jim.sayHello(); // prints out: 'Hello, my name is Jim.  What is yours?'
-jim.sayBye();	// prints out: 'Goodbye.'
-
-```
-
 <a name="generation-generate"></a>
 ## Generation.generate(create)
 
-* *create* `Function` Create method that gets called when creating a new object that inherits from *this* [Generation.proto](#generation-proto).
-* *return*: `Generation` A new [Generation](#class-generation) that inherits from *this* [Generation](#class-generation).
+* *create* `Function` Constructor that with inherit form [Generation](#class-generation).
+* *return*: `Constructor` The inputed `create` function.
 
 Returns a new [Generation](#class-generation) that inherits from *this* [Generation](#class-generation).
 
@@ -204,9 +197,7 @@ Example:
 var Student = Person.generate(
 	/* create method */
 	function Student(name, age, sex, studentId) {
-		// 'supercreate' method is only available in this create method scope.
-		// NOTE: if the 'supercreate' method is not called implicitly it will be called with no arguments.
-		this.supercreate(name, age, sex);
+		Person.call(this, name, age, sex);
 		this.studentId = studentId || 'A0000000000';
 	}
 );
@@ -222,7 +213,7 @@ Student.definePrototype(
 	}
 );
 
-var sarah = Student.create('Sarah', 17, 'female', 'A0123456789');
+var sarah = new Student('Sarah', 17, 'female', 'A0123456789');
 
 sarah.name		  // 'Sarah'
 sarah.age		  // 17
@@ -248,12 +239,12 @@ Returns `true` if *test* inherits from *this* [Generation](#class-generation), `
 * *test* `Object` An Object to be tested.
 * *return*: `Boolean` `true` or `false`.
 
-Returns `true` if *test* inherits from *this* [Generation.proto](#generation-proto), `false` otherwise.
+Returns `true` if *test* is an instance of *this* [Generation](#generation), `false` otherwise.
 
 <a name="class-creation"></a>
 ## Class: Creation
 
-A new Creation that inherits from a [Generation's proto](#generation-proto) that created it using the [Generation.create()](#generation-create) method.
+A instance [Generation](#generation) that created it using the [new Generation()](#generation-create).
 
 <a name="creation-define-properties"></a>
 ## Creation.defineProperties([descriptor,] properties)
