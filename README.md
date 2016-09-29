@@ -1,3 +1,5 @@
+# Release v2.1.1
+
 ## Table of Contents
 
 * [ Generator ](#generator)
@@ -311,7 +313,7 @@ Returns the super prototype of *this* [Creation](#class-creation).
 ## License:
 	The MIT License (MIT)
 
-	Copyright (c) 2014-2015 Michaelangelo Jong
+	Copyright (c) 2014-2016 Michaelangelo Jong
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
