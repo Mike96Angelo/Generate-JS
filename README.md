@@ -1,4 +1,6 @@
-# Release v2.1.1
+# Release v2.1.6
+
+# [v3.0.0](new-api.md) has *BREAKING* changes and is not compatible for inheirtance with *ANY* v2.\*.\* Generators.
 
 ## Table of Contents
 
@@ -332,5 +334,3 @@ Returns the super prototype of *this* [Creation](#class-creation).
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-
-
