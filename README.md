@@ -7,7 +7,7 @@
 * [ Generator ](#generator)
 	* [ Generator.generate(create) ](#generate)
 	* [ Generator.isGenerator(test) ](#is-generator)
-	* [ Generator.toGenerator(constructor, create) ](#to-generator)
+	* [ Generator.generateFrom(constructor, create) ](#generate-from)
 	* [ Class: Generation ](#class-generation)
 		* [ new Generation() ](#generation-create)
 		* [ Generation.definePrototype([descriptor,] properties) ](#generation-define-prototype)
@@ -60,8 +60,8 @@ var Person = Generator.generate(
 
 Returns `true` if *test* object inherits from [Generation](#class-generation), `false` otherwise.
 
-<a name="to-generator"></a>
-## Generator.toGenerator(constructor, create)
+<a name="generate-from"></a>
+## Generator.generateFrom(constructor, create)
 
 * *constructor* `Function` An constructor to be generatorized.
 * *create* `Function` Constructor that with inherit form [Generation](#class-generation) and *constructor*.
@@ -77,7 +77,7 @@ Example:
 var Generator = require('generate-js'),
 	events	  = require('events');
 
-var EventEmitter = Generator.toGenerator(events.EventEmitter, function EventEmitter() {
+var EventEmitter = Generator.generateFrom(events.EventEmitter, function EventEmitter() {
   events.EventEmitter.call(this); //call the super constructor
 });
 
