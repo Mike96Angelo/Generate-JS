@@ -275,7 +275,7 @@
 
             /**
              * Generates a new generator that inherits from `this` generator.
-             * @param {Generator} ParentGenerator Generator to inherit from.
+             * @param {Generator} extendFrom      Constructor to inherit from.
              * @param {Function} create           Create method that gets called when creating a new instance of new generator.
              * @return {Generator}                New Generator that inherits from 'ParentGenerator'.
              */
@@ -283,16 +283,16 @@
                 console.warn(
                     'Generator.toGenerator is depreciated please use Generator.generateFrom'
                 );
-                return this.generataFrom(extendFrom, create);
+                return this.generateFrom(extendFrom, create);
             },
 
             /**
              * Generates a new generator that inherits from `this` generator.
-             * @param {Constructor} generataFrom  Constructor to inherit from.
+             * @param {Constructor} extendFrom    Constructor to inherit from.
              * @param {Function} create           Create method that gets called when creating a new instance of new generator.
              * @return {Generator}                New Generator that inherits from 'ParentGenerator'.
              */
-            generataFrom: function generataFrom(extendFrom, create) {
+            generateFrom: function generateFrom(extendFrom, create) {
                 assertTypeError(extendFrom, 'function');
                 assertTypeError(create, 'function');
 
