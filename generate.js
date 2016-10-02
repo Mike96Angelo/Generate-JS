@@ -321,8 +321,8 @@
                         enumerable: false,
                         writable: false
                     }, {
-                        constructor: construct,
-                        generator: construct,
+                        constructor: create,
+                        generator: create,
                     }
                 );
 

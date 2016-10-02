@@ -1,4 +1,4 @@
-# Release v3.1.1
+# Release v3.1.2
 
 # v3.0.0 has *BREAKING* changes and is not compatible for inheirtance with *ANY* v2.\*.\* Generators.
 
