@@ -1,4 +1,9 @@
-# Release v3.1.2
+# Generate-JS
+
+[![GitHub release](https://img.shields.io/github/release/Mike96angelo/Generate-JS.svg?maxAge=21600)](https://github.com/Mike96Angelo/Generate-JS)
+[![npm version](https://img.shields.io/npm/v/generate-js.svg?maxAge=21600)](https://www.npmjs.com/package/generate-js)
+[![npm downloads](https://img.shields.io/npm/dm/generate-js.svg?maxAge=604800)](https://www.npmjs.com/package/generate-js)
+[![npm downloads](https://img.shields.io/npm/dt/generate-js.svg?maxAge=604800)](https://www.npmjs.com/package/generate-js)
 
 # v3.0.0 has *BREAKING* changes and is not compatible for inheirtance with *ANY* v2.\*.\* Generators.
 
